@@ -4,7 +4,6 @@
   <artifactId>com.elijahv.EzPremium</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>ezPremium</name>
-  
   <properties>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   	<maven.compiler.source>11</maven.compiler.source>
@@ -21,11 +20,12 @@
 			<artifactId>javafx-fxml</artifactId>
 			<version>14</version>
 		</dependency>
+		<dependency>
+			  <groupId>org.json</groupId>
+			  <artifactId>json</artifactId>
+			  <version>20190722</version>
+		</dependency>
 	</dependencies>  
-
-  
-  
-  
   <build>
   	<plugins>
   		<plugin>

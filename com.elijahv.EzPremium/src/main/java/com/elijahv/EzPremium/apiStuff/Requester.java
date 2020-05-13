@@ -5,10 +5,14 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import gameSpecific.Order;
+import org.json.JSONArray;
+
+import gameSpecific.Market;
 
 
 public class Requester {
@@ -29,22 +33,19 @@ public class Requester {
 		}
 		parseReponse(response.body());
 		return response.body();
-		
-		
 	}
 	
-	private static List<HashMap<String, List<Order>>> parseReponse(String response) {
-		response = response.substring(1, response.length());
-		String[] marketsList = response.split("\"location\"");
-		for(String market:marketsList) {
-			System.out.println(market);
+	private static Map<String, Market> parseReponse(String response) {
+		JSONArray parsedArray = new JSONArray(response);
+		Market[] markets = new Market[parsedArray.length()];
+		for(int i = 0; i <parsedArray.length();i++) {
+			markets[i] = new Market(parsedArray.getJSONObject(i));
 		}
-		
-		
-		
-		
-		
-		return null;
+		Map<String, Market> map = new HashMap<String, Market>(markets.length);
+		for(Market market:markets) {
+			map.put(market.location, market);
+		}
+		return map;
 	}
 	
 	
