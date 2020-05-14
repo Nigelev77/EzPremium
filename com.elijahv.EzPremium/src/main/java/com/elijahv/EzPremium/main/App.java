@@ -1,22 +1,26 @@
 package com.elijahv.EzPremium.main;
 
-import java.util.Arrays;
+import java.util.Map;
 
 import com.elijahv.EzPremium.apiStuff.Requester;
+import com.elijahv.EzPremium.graphInfo.DataInfo;
+import com.elijahv.EzPremium.graphs.GraphArea;
 
+import gameSpecific.Market;
 import javafx.application.Application;
-import javafx.collections.FXCollections;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.LineChart;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class App extends Application{
+	
+	
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -26,38 +30,25 @@ public class App extends Application{
 	public void start(Stage primaryStage) throws Exception {
 
 		
-		Group root = new Group();
+		VBox root = new VBox();
+		root.setMaxWidth(1000);
 		Group left = new Group();
+		Group dataInfo = DataInfo.createDataInfo();
 		BorderPane pane = new BorderPane(root);
 		pane.setLeft(left);
-		CategoryAxis xAxis = new CategoryAxis(FXCollections.<String>observableArrayList(Arrays.asList("Speed", "User rating", "Milage", "Safety")));
-		xAxis.setLabel("collections");
-		NumberAxis yAxis = new NumberAxis("number", 0, 100, 10);
+		pane.setRight(dataInfo);
 		
+		Map<String, Market> markets = Requester.getResponse();
+		ScrollPane graph = GraphArea.createHistoryBarChart(markets.get("Martlock"));
+		//ScrollPane linegraph = GraphArea.createHistoryLineChart(markets.get("Martlock"));
 		
-		BarChart<String, Number> barChart = new BarChart<String, Number>(xAxis, yAxis);
-		XYChart.Series<String, Number> series1 = new XYChart.Series<String, Number>();
-		series1.setName("Fiat");
-		series1.getData().add(new XYChart.Data<String, Number>("Speed", 1.0)); 
-		series1.getData().add(new XYChart.Data<String, Number>("User rating", 3.0)); 
-		series1.getData().add(new XYChart.Data<String, Number>("Milage", 5.0)); 
-		series1.getData().add(new XYChart.Data<String, Number>("Safety", 5.0));   
-		
-		XYChart.Series<String, Number> series2 = new XYChart.Series<String, Number>(); 
-		series2.setName("Audi"); 
-		series2.getData().add(new XYChart.Data<String, Number>("Speed", 5.0)); 
-		series2.getData().add(new XYChart.Data<String, Number>("User rating", 6.0)); 
-		
-		
-		barChart.getData().addAll(series1, series2);
-		
-		Label label = new Label(Requester.getResponse());
+		Label label = new Label("Martlock");
 		label.setPrefWidth(50);
 		label.setPrefHeight(100);
 		label.setWrapText(true);
 		left.getChildren().add(label);
-		root.getChildren().add(barChart);
-		
+		root.getChildren().add(graph);
+		//root.getChildren().add(linegraph);
 		Scene scene = new Scene(pane, 600, 400);
 		primaryStage.setScene(scene);
 		primaryStage.show();

@@ -9,6 +9,9 @@ public class Order {
 	public String time;
 	
 	public Order(JSONObject orderHistory) {
+		itemCount = orderHistory.getInt("item_count");
+		avgPrice = orderHistory.getInt("avg_price");
+		time = orderHistory.getString("timestamp");
 	}
 	
 	
