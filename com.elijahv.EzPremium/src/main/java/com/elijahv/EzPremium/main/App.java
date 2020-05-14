@@ -39,7 +39,7 @@ public class App extends Application{
 		pane.setRight(dataInfo);
 		
 		Map<String, Market> markets = Requester.getResponse();
-		ScrollPane graph = GraphArea.createHistoryBarChart(markets.get("Martlock"));
+		ScrollPane graph = GraphArea.createHistoryLineAndBarChart(markets.get("Martlock"));
 		//ScrollPane linegraph = GraphArea.createHistoryLineChart(markets.get("Martlock"));
 		
 		Label label = new Label("Martlock");
@@ -48,7 +48,7 @@ public class App extends Application{
 		label.setWrapText(true);
 		left.getChildren().add(label);
 		root.getChildren().add(graph);
-		//root.getChildren().add(linegraph);
+
 		Scene scene = new Scene(pane, 600, 400);
 		primaryStage.setScene(scene);
 		primaryStage.show();
