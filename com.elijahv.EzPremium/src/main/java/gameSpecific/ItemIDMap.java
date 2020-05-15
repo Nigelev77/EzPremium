@@ -1,10 +1,10 @@
 package gameSpecific;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -12,14 +12,15 @@ import java.util.regex.Pattern;
 public class ItemIDMap {
 	
 	public static Map<String, String> itemIDs = new HashMap<String, String>();
-	public static String path = "src/main/resources/ItemIds";
+	public static final String path = "../ItemIds";
+
 	
 	public static void generateList() {
 		
 		StringBuilder string = new StringBuilder();
 		try {
-			FileReader file = new FileReader(new File(path));
-			BufferedReader reader = new BufferedReader(file);
+			InputStream file = ItemIDMap.class.getResourceAsStream(path);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(file));
 			String line;
 			while((line=reader.readLine())!=null) {
 				string.append(line+"\n");
