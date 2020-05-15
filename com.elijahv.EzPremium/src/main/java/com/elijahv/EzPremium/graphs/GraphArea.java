@@ -2,6 +2,10 @@ package com.elijahv.EzPremium.graphs;
 
 import java.util.Arrays;
 
+import com.elijahv.EzPremium.apiStuff.Requester;
+import com.elijahv.EzPremium.graphInfo.DataInfo;
+import com.elijahv.EzPremium.marketRequester.MarketChanger;
+
 import gameSpecific.Market;
 import gameSpecific.Order;
 import javafx.collections.FXCollections;
@@ -15,11 +19,23 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 public class GraphArea {
 	
+	public static VBox root = new VBox();
+	
+	
+	public static void initialise(BorderPane pane) {
+		root.setMaxWidth(1000);
+		pane.setCenter(root);
+	}
+	
 	public static ScrollPane createHistoryLineAndBarChart(Market market){
+		if(market == null) {
+			return new ScrollPane();
+		}
 		ScrollPane pane = new ScrollPane();
 		VBox vbox = new VBox();
 		CategoryAxis xAxis = new CategoryAxis(FXCollections.<String>observableArrayList(
@@ -37,7 +53,7 @@ public class GraphArea {
 
 				@Override
 				public void handle(Event event) {
-					
+					DataInfo.setbarDataLabels(order.time, order.itemCount, order.avgPrice);
 					
 				}
 			
@@ -58,6 +74,14 @@ public class GraphArea {
 			XYChart.Data<String, Number> dataPoint = new XYChart.Data<String, Number>(order.time, order.avgPrice);
 			lineSeries.getData().add(dataPoint);
 			Tooltip.install(dataPoint.getNode(), new Tooltip("Volume: "+String.valueOf(order.itemCount)+"\n"+"Avg Price: "+String.valueOf(order.avgPrice)+"\n"+"Timestamp: "+order.time));
+			dataPoint.getNode().setOnMouseEntered(new EventHandler<Event>() {
+
+				@Override
+				public void handle(Event event) {
+					DataInfo.setlineDataLabels(order.time, order.itemCount, order.avgPrice);
+					
+				}
+			});
 		}
 		linechart.setPrefWidth(market.orderData.length*25);
 		linechart.setLegendVisible(false);
@@ -69,6 +93,13 @@ public class GraphArea {
 		
 	}
 	
+	public static void setupGraphs() {
+		if(Requester.availableMarket.isEmpty() || MarketChanger.market == null) {
+			return;
+		}
+		root.getChildren().clear();
+		root.getChildren().add(createHistoryLineAndBarChart(Requester.availableMarket.get(MarketChanger.market)));
+	}
 	
 	
 	
