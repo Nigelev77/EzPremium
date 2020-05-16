@@ -16,14 +16,14 @@ public class App extends Application{
 	
 	
 	public static void main(String[] args) {
-		ItemIDMap.generateList();
+
 		launch(args);
 	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		
+		ItemIDMap.generateList();
 
 		Group left = new Group();
 		Group dataInfo = DataInfo.createDataInfo();

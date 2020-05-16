@@ -1,9 +1,5 @@
 package com.elijahv.EzPremium.marketRequester;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.elijahv.EzPremium.apiStuff.Requester;
 import com.elijahv.EzPremium.graphs.GraphArea;
 
@@ -11,9 +7,7 @@ import gameSpecific.ItemIDMap;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -36,11 +30,12 @@ public class MarketChanger {
 	public static String market = "Martlock";
 	public static int timeInterval = 1;
 	public static String itemId = "T4_LEATHER";
+	public static ChoiceBox<String> markets = new ChoiceBox<String>();
+	public static TextField field = new TextField();
 	
 	public static VBox createChangerMenu(Group root) {
 
 		VBox menu = new VBox();
-		TextField field = new TextField();
 		field.setTooltip(new Tooltip("Enter item name"));
 		VBox fieldBox = new VBox();
 		fieldBox.setMaxHeight(250);
@@ -48,8 +43,6 @@ public class MarketChanger {
 		ScrollPane scroll = new ScrollPane(searchList);
 		fieldBox.getChildren().add(field);
 		field.setPromptText("Enter item name");
-		FilteredList<String> filter = new FilteredList<String>(FXCollections.observableArrayList(ItemIDMap.itemIDs.keySet()));
-		ChoiceBox<String> markets = new ChoiceBox<String>();
 		markets.setTooltip(new Tooltip("Select market"));
 		markets.setOnAction(new EventHandler<ActionEvent>() {
 			
@@ -60,74 +53,72 @@ public class MarketChanger {
 			}
 		});
 		menu.getChildren().addAll(fieldBox, markets);
-		field.textProperty().addListener((list, oldVal, newVal) -> {
-			filter.setPredicate(string -> {
-				if(newVal == null || newVal.isEmpty()) {
-					return true;
-				}
-				
-				String newValLower = newVal.toLowerCase();
-				if(string.toLowerCase().contains(newValLower)) {
-					return true;
-				}
-				return false;
-			});
-		});
+		
+		
+
 		
 		Background onHover = new Background(new BackgroundFill(Color.MEDIUMBLUE, new CornerRadii(0), null));
 		Background onExit = new Background(new BackgroundFill(Color.WHITE, new CornerRadii(0), null));
 		
+		ObservableList<Label> itemList = FXCollections.observableArrayList();
 		
-		SortedList<String> sorted = new SortedList<String>(filter);
+		for(String item:ItemIDMap.itemIDs.keySet()) {
+			Label itemLabel = new Label(item);
+			EventHandler<MouseEvent> itemClickHandler = new EventHandler<MouseEvent>() {
+				
+				@Override
+				public void handle(MouseEvent event) {
+					MarketChanger.itemId = ItemIDMap.itemIDs.get(item);
+					Requester.getResponse();
+					MarketChanger.markets.setItems(FXCollections.observableArrayList(Requester.availableMarket.keySet()));
+					MarketChanger.field.setText(item);
+					MarketChanger.field.deselect();
+					MarketChanger.markets.setValue(MarketChanger.markets.getItems().get(0));
+				}
+			};
+			
+			EventHandler<MouseEvent> itemEnterHandler = new EventHandler<MouseEvent>() {
+				
+				@Override
+				public void handle(MouseEvent event) {
+					itemLabel.setBackground(onHover);
+					
+				}
+			};
+			EventHandler<MouseEvent> itemExitHandler = new EventHandler<MouseEvent>() {
+				
+				@Override
+				public void handle(MouseEvent event) {
+					itemLabel.setBackground(onExit);
+					
+				}
+			};
+			itemLabel.setOnMouseClicked(itemClickHandler);
+			itemLabel.setOnMouseEntered(itemEnterHandler);
+			itemLabel.setOnMouseExited(itemExitHandler);
+			itemList.add(itemLabel);
+		}
 		
-		sorted.addListener(new ListChangeListener<String>() {
-
+		field.textProperty().addListener(new ChangeListener<String>() {
 
 			@Override
-			public void onChanged(Change<? extends String> c) {
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				searchList.getChildren().clear();
-				List<Label> items = new ArrayList<Label>();
-				List<String> list = new ArrayList<String>(sorted);
-				Collections.sort(list);
-				for(String item:list) {
-					Label label = new Label(item);
-					EventHandler<MouseEvent> itemClickHandler = new EventHandler<MouseEvent>() {
-						
-						@Override
-						public void handle(MouseEvent event) {
-							itemId = ItemIDMap.itemIDs.get(item);
-							Requester.getResponse();
-							markets.setItems(FXCollections.observableArrayList(Requester.availableMarket.keySet()));
-							field.setText(item);
-							field.deselect();
-							markets.setValue(markets.getItems().get(0));
+				System.gc();
+				if(newValue==null || newValue.isEmpty()) {
+					searchList.getChildren().addAll(itemList);
+				}else {
+					for(Label item:itemList) {
+						if(item.getText().toLowerCase().contains(newValue.toLowerCase())) {
+							searchList.getChildren().add(item);
 						}
-					};
-					EventHandler<MouseEvent> itemEnterHandler = new EventHandler<MouseEvent>() {
-						
-						@Override
-						public void handle(MouseEvent event) {
-							label.setBackground(onHover);
-							
-						}
-					};
-					EventHandler<MouseEvent> itemExitHandler = new EventHandler<MouseEvent>() {
-						
-						@Override
-						public void handle(MouseEvent event) {
-							label.setBackground(onExit);
-							
-						}
-					};
-					label.setOnMouseClicked(itemClickHandler);
-					label.setOnMouseEntered(itemEnterHandler);
-					label.setOnMouseExited(itemExitHandler);
-					items.add(label);
+					}
 				}
-				searchList.getChildren().addAll(items);
 				
 			}
 		});
+		
+		
 		
 		field.focusedProperty().addListener(new ChangeListener<Boolean>() {
 
@@ -162,6 +153,9 @@ public class MarketChanger {
 			
 			@Override
 			public void handle(ActionEvent event) {
+				if(market.equals(GraphArea.market) && timeInterval == GraphArea.timeInterval && itemId.equals(GraphArea.itemID)) {
+					return;
+				}
 				Requester.getResponse();
 				GraphArea.setupGraphs();
 				

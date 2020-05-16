@@ -21,6 +21,8 @@ public class Requester {
 	public static Map<String, Market> availableMarket = new HashMap<String, Market>();
 	
 	public static void getResponse() {
+		availableMarket.clear();
+		System.gc();
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url+"History/"+MarketChanger.itemId+"?time-scale="+String.valueOf(MarketChanger.timeInterval))).build();
 		HttpResponse<String> response = null;
@@ -32,7 +34,6 @@ public class Requester {
 			e.printStackTrace();
 		}
 		parseReponse(response.body());
-		
 	}
 	
 	private static void parseReponse(String response) {
@@ -42,7 +43,6 @@ public class Requester {
 			
 			markets[i] = new Market(parsedArray.getJSONObject(i));
 		}
-		availableMarket= new HashMap<String, Market>(markets.length);
 		for(Market market:markets) {
 			availableMarket.put(market.location, market);
 		}

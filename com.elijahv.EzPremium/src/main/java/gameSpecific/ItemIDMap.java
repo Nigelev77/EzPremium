@@ -12,7 +12,11 @@ import java.util.regex.Pattern;
 public class ItemIDMap {
 	
 	public static Map<String, String> itemIDs = new HashMap<String, String>();
-	public static final String path = "../ItemIds";
+
+
+	
+	
+	public static final String path = "/ItemIds";
 
 	
 	public static void generateList() {
@@ -42,8 +46,9 @@ public class ItemIDMap {
 			if(splitItemId.length==2) {
 				itemIDs.put(splitItemId[1], splitItemId[0]);
 			}
-
 		}
+		
+
 	}
 	
 	

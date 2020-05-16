@@ -25,7 +25,9 @@ import javafx.scene.layout.VBox;
 public class GraphArea {
 	
 	public static VBox root = new VBox();
-	
+	public static String market = "none";
+	public static String itemID = "none";
+	public static int timeInterval = 0;
 	
 	public static void initialise(BorderPane pane) {
 		root.setMaxWidth(1000);
@@ -89,15 +91,24 @@ public class GraphArea {
 		vbox.getChildren().add(barChart);
 		vbox.getChildren().add(linechart);
 		pane.setContent(vbox);
+		
+		itemID=MarketChanger.itemId;
+		GraphArea.market = MarketChanger.market;
+		timeInterval = MarketChanger.timeInterval;
+		
+		
 		return pane;
 		
 	}
 	
 	public static void setupGraphs() {
 		if(Requester.availableMarket.isEmpty() || MarketChanger.market == null) {
+			root.getChildren().clear();
+			System.gc();
 			return;
 		}
 		root.getChildren().clear();
+		System.gc();
 		root.getChildren().add(createHistoryLineAndBarChart(Requester.availableMarket.get(MarketChanger.market)));
 	}
 	
